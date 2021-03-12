@@ -1,0 +1,272 @@
+import Vue from 'vue'
+import Vuex from 'vuex'
+import router from "@/router/index.js"
+import firebase from 'firebase'
+import createPersistedState from 'vuex-persistedstate'
+import axios from 'axios'
+import { db } from '@/main.js'
+
+Vue.use(Vuex)
+
+
+export default new Vuex.Store({
+  state: {
+    user: null,
+    isSignIn: false,
+    drawer: false,
+    books: [],
+    query: '',
+    keepBooks: [],
+    postBooks: [],
+    recentBooks: []
+  },
+  mutations: {
+    setUser (state, payload) {
+      state.user = payload
+    },
+    setSignIn(state, payload) {
+      state.isSignIn = payload
+    },
+    deleteLoginUser (state) {
+      state.user = null
+    },
+    toggleMenu (state) {
+      state.drawer = !state.drawer
+    },
+    getBooks(state, books) {
+      state.books = books
+    },
+    setQuery(state, payload) {
+      state.query = payload.query
+    },
+    setKeepBooks(state, payload) {
+      state.keepBooks = payload
+    },
+    setAdd(state, book) {
+      const uid = firebase.auth().currentUser.uid;
+        db.collection('users').doc(uid).collection('keep').add({
+          bid: book.id,
+          title: book.volumeInfo.title,
+          volumeInfo: book.volumeInfo
+      })
+      .then(() => {
+          book.keep_status = true;
+          console.log('お気に入り登録')
+      })
+      .catch(err => {
+        console.log(err);
+      })
+    },
+    setRemove(state, book) {
+      const uid = firebase.auth().currentUser.uid;
+      db.collection('users').doc(uid).collection('keep').where('bid', '==', book.id).get().then(snap => {
+        snap.forEach(ele => {
+          let delete_book = ele.data()
+          let delete_bid = ele.id
+          if(delete_book.bid === book.id) {
+            db.collection('users').doc(uid).collection('keep').doc(delete_bid).delete()
+            .then(() => { 
+              book.keep_status = false;
+              console.log('お気に入り削除');
+            })
+            .catch(err => {
+              console.log(err);
+            })
+          }
+        })
+      })
+    },
+    setKeepRemove(state, keepbook) {
+      const uid = firebase.auth().currentUser.uid;
+      db.collection('users').doc(uid).collection('keep').where('bid', '==', keepbook.bid).get().then(snap => {
+        snap.forEach(ele => {
+          let delete_book = ele.data()
+          let delete_bid = ele.id
+          if(delete_book.bid === keepbook.bid) {
+            db.collection('users').doc(uid).collection('keep').doc(delete_bid).delete()
+            .then(() => { 
+              keepbook.keep_status = false;
+              console.log('お気に入り削除');
+            })
+            .catch(err => {
+              console.log(err);
+            })
+          }
+        })
+      })
+    },
+    setPostBooks(state, payload) {
+      state.postBooks = payload
+    },
+    setRecentBooks(state, payload) {
+      state.recentBooks = payload
+    }
+  },
+  actions: {
+    setLoginUser ({ commit }, user) {
+      commit('setLoginUser', user)
+    },
+    deleteLoginUser ({ commit }) {
+      commit('deleteLoginUser')
+    },
+    userLogin ({ commit }, { email, password}) {
+      firebase
+      .auth().signInWithEmailAndPassword(email, password)
+      .then(user => {
+        commit('setUser', user)
+        commit('isSignIn', true)
+        router.push('/userhome')
+      })
+      .catch(() => {
+        commit('setUser', null)
+        commit('isSignIn', false)
+        alert('入力内容を再度確認してください。')
+      })
+    },
+    userSignOut ({ commit }) {
+      firebase
+      .auth()
+      .signOut()
+      .then(() => {
+        commit('setUser', null)
+        commit('isSignIn', false)
+        router.push('/')
+      })
+      .catch(() => {
+        commit('setUser', null)
+        commit('isSignIn', false)
+        router.push('/')
+      })
+    },
+    toggleMenu ({ commit }) {
+      commit('toggleMenu')
+    },
+    userJoin ({ commit }, {  email, password, userName }) {
+      firebase
+      .auth()
+      .createUserWithEmailAndPassword(email, password)
+      .then(user => {
+        user.user.updateProfile({
+          displayName: userName
+        })
+        commit('setUser', user)
+        commit('isSignIn', true)
+        router.push('/userhome')
+      })
+      .catch(() => {
+        commit('setUser', null)
+        commit('isSignIn', false)
+        alert('入力内容を再度確認してください。')
+      })
+      const uid = firebase.auth().currentUser.uid;
+      db.collection("users").doc(uid)
+      .add({
+          userName: userName,
+          email: email,
+          password: password
+      })
+    },
+    userDelete({ commit }) {
+      firebase
+      .auth()
+      .currentUser.delete()
+      .then(() => {
+        commit('setUser', null)
+        commit('isSignIn', false)
+        router.push('/')
+      })
+      .catch(() => {
+        commit('setUser', null)
+        commit('isSignIn', false)
+        router.push('/')
+      })
+    },
+    doUpdate({ commit }, query) {
+      commit('setQuery', { query })
+    },
+    searchBook({ commit, state }) {
+      if(!state.query) {
+        return
+      }
+      const params = {
+        q: state.query,
+        Country: "JP",
+        maxResults: 40,
+        // startIndex: 0
+      }
+      axios.get('https://www.googleapis.com/books/v1/volumes', { params: params })
+      .then(response => {
+        let books = response.data.items
+        commit("getBooks", books)
+      })
+      .catch(error => {
+        console.log(error);
+      })
+    },
+    addKeep({ commit }, book) {
+      commit('setAdd', book)
+    },
+    removeKeep({ commit }, book) {
+      commit('setRemove', book)
+    },
+    removeKeepList({ commit }, keepbook) {
+      commit('setKeepRemove', keepbook)
+    },
+    getKeepBooks({ commit }) {
+      var uid = firebase.auth().currentUser.uid
+      db.collection('users').doc(uid).collection('keep').onSnapshot(snap => {
+        let get_keeps = []
+        snap.forEach(ele => {
+          let keep = ele.data();
+          get_keeps.push(keep)
+        })
+          commit('setKeepBooks', get_keeps)
+          console.log('キープを取得', get_keeps)
+      })
+    },
+    getPostBooks({ commit }) {
+      var uid = firebase.auth().currentUser.uid
+      db.collection('users').doc(uid).collection('post').onSnapshot(snap => {
+        let get_posts = []
+        snap.forEach(ele => {
+          let post = ele.data();
+          get_posts.push(post)
+        })
+          commit('setPostBooks', get_posts)
+          console.log('ポストを取得', get_posts)
+      })
+    },
+    getRecentBooks({ commit }) {
+      var uid = firebase.auth().currentUser.uid
+      db.collection('users').doc(uid).collection('post').orderBy('date', 'desc').limit(4).get()
+      .then(snap => {
+        let recent_posts = []
+        snap.forEach(doc => {
+          let recent_item = doc.data();
+          recent_posts.push(recent_item)
+        })
+        commit('setRecentBooks', recent_posts)
+        console.log('setRecentBooks', recent_posts)
+      })
+      .catch(error => {
+        console.log(error);
+      })
+    }
+  },
+  getters: {
+    getUser(state) {
+      return state.user
+    },
+    userName(state) {
+      return state.userName
+    },
+    isSignIn(state) {
+      return state.user !== null && state.user !== undefined
+    },
+  },
+  plugins: [createPersistedState({
+    key: 'book-app',
+    storage: window.sessionStorage
+  })]
+
+})
