@@ -6,8 +6,8 @@
           <v-toolbar dark color="primary">
             <v-toolbar-title>ログイン</v-toolbar-title>
           </v-toolbar>
-          <v-card-text>
-            <v-form ref="form" v-model="valid">
+          <v-form ref="form" v-model="valid" type="submit">
+            <v-card-text>
               <v-text-field
                 name="email"
                 label="Email"
@@ -26,17 +26,17 @@
                 :rules="passwordRules"
                 required
               ></v-text-field>
-            </v-form>
-          </v-card-text>
-          <v-card-actions>
-            <v-spacer></v-spacer>
-            <v-btn
-              color="primary"
-              :disabled="!valid"
-              @click="submit"
-              data-cy="signinSubmitBtn"
-            >ログイン</v-btn>
-          </v-card-actions>
+            </v-card-text>
+            <v-card-actions>
+              <v-spacer></v-spacer>
+              <v-btn
+                color="primary"
+                :disabled="!valid"
+                @click="submit"
+                data-cy="signinSubmitBtn"
+              >ログイン</v-btn>
+            </v-card-actions>
+          </v-form>
         </v-card>
       </v-flex>
     </v-layout>

@@ -6,12 +6,6 @@ import vuetify from './plugins/vuetify'
 import VCalendar from 'v-calendar'
 import firebase from 'firebase'
 
-
-Vue.use(VCalendar, {
-  componentPrefix: 'vc', 
-})
-Vue.config.productionTip = false
-
 var firebaseConfig = {
   apiKey: "AIzaSyD-T6OWU4rwqPHtbhqdmUPbDW_bgH4zBKE",
   authDomain: "book-app-3161f.firebaseapp.com",
@@ -22,15 +16,19 @@ var firebaseConfig = {
   measurementId: "G-ZDQEJHLFZB"
 };
 
-if(!firebase.apps.length) {
-  firebase.initializeApp(firebaseConfig);
-}
+firebase.initializeApp(firebaseConfig);
 firebase.analytics();
 
-export const user = firebase.auth().currentUser
-export const db = firebase.firestore()
-// export const keep_db = firebase.firestore().collection('users').doc(user.uid).collection('keep')
-// export const post_db = firebase.firestore().collection('users').doc(user.uid).collection('post')
+Vue.config.productionTip = false
+
+export const  db = firebase.firestore()
+export const  user = firebase.auth().currentUser
+// export const  uid = firebase.auth().currentUser.uid
+
+
+Vue.use(VCalendar, {
+  componentPrefix: 'vc', 
+})
 
 new Vue({
   router,

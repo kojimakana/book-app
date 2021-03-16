@@ -86,7 +86,6 @@
 
 <script>
 import firebase from "firebase";
-import { db } from '@/main.js'
 import CommitDialog from "@/components/CommitDialog"
 
 export default {
@@ -130,7 +129,7 @@ export default {
     },
     postBook(emitValue) {
       const uid = firebase.auth().currentUser.uid;
-      db.collection('users').doc(uid).collection('post').add({
+      this.$forceUpdatedb.collection('users').doc(uid).collection('post').add({
         bid: this.keepItem.bid,
         title: this.keepItem.title,
         date: emitValue.date,
@@ -138,12 +137,12 @@ export default {
         volumeInfo: this.keepItem.volumeInfo
       })
       .then(() => {
-        db.collection('users').doc(uid).collection('keep').where('bid', '==', this.keepItem.bid).get().then(snap => {
+        this.db.collection('users').doc(uid).collection('keep').where('bid', '==', this.keepItem.bid).get().then(snap => {
         snap.forEach(ele => {
           let delete_book = ele.data()
           let delete_bid = ele.id
           if(delete_book.bid === this.keepItem.bid) {
-            db.collection('users').doc(uid).collection('keep').doc(delete_bid).delete()
+            this.db.collection('users').doc(uid).collection('keep').doc(delete_bid).delete()
             }
           })
         })
@@ -163,12 +162,12 @@ export default {
 
     deleteKeep(keepbook) {
       const uid = firebase.auth().currentUser.uid;
-      db.collection('users').doc(uid).collection('keep').where('bid', '==', keepbook.bid).get().then(snap => {
+      this.db.collection('users').doc(uid).collection('keep').where('bid', '==', keepbook.bid).get().then(snap => {
         snap.forEach(ele => {
           let delete_book = ele.data()
           let delete_id = ele.id
           if(delete_book.bid === keepbook.bid) {
-            db.collection('users').doc(uid).collection('keep').doc(delete_id).delete()
+            this.db.collection('users').doc(uid).collection('keep').doc(delete_id).delete()
             .then(() => { 
               console.log('削除');
             })

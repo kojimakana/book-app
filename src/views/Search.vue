@@ -65,7 +65,6 @@
                   <v-icon>mdi-bookmark</v-icon>
                 </v-btn>
               </v-card-actions>
-              
                 <v-expansion-panels v-if="book.volumeInfo.description">
                 <v-expansion-panel>
                   <v-expansion-panel-header>
@@ -106,7 +105,6 @@
 <script>
 import _ from "lodash"
 import firebase from 'firebase'
-import { db } from '@/main.js'
 import CommitDialog from "@/components/CommitDialog"
 
 export default {
@@ -183,7 +181,7 @@ export default {
     postBook(emitValue) {
       console.log(this.item);
       const uid = firebase.auth().currentUser.uid;
-      db.collection('users').doc(uid).collection('post').add({
+      this.db.collection('users').doc(uid).collection('post').add({
         bid: this.item.id,
         title: this.item.volumeInfo.title,
         date: emitValue.date,

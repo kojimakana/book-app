@@ -78,7 +78,8 @@ export default new Vuex.Store({
     },
     setKeepRemove(state, keepbook) {
       const uid = firebase.auth().currentUser.uid;
-      db.collection('users').doc(uid).collection('keep').where('bid', '==', keepbook.bid).get().then(snap => {
+      db.collection('users').doc(uid).collection('keep').where('bid', '==', keepbook.bid).get()
+      .then(snap => {
         snap.forEach(ele => {
           let delete_book = ele.data()
           let delete_bid = ele.id
@@ -152,18 +153,20 @@ export default new Vuex.Store({
         commit('setUser', user)
         commit('isSignIn', true)
         router.push('/userhome')
-      })
-      .catch(() => {
-        commit('setUser', null)
-        commit('isSignIn', false)
-        alert('入力内容を再度確認してください。')
-      })
-      const uid = firebase.auth().currentUser.uid;
-      db.collection("users").doc(uid)
-      .add({
+
+        const uid = user.user.uid;
+        db.collection("users").doc(uid).collection('userInfo')
+        .add({
           userName: userName,
           email: email,
           password: password
+        })
+      })
+      .catch(err => {
+        console.log(err);
+        commit('setUser', null)
+        commit('isSignIn', false)
+        alert('入力内容を再度確認してください。')
       })
     },
     userDelete({ commit }) {
@@ -192,7 +195,6 @@ export default new Vuex.Store({
         q: state.query,
         Country: "JP",
         maxResults: 40,
-        // startIndex: 0
       }
       axios.get('https://www.googleapis.com/books/v1/volumes', { params: params })
       .then(response => {

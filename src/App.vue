@@ -14,10 +14,12 @@
 <script>
 import Menu from './components/Menu'
 import Nav from './components/Nav'
+import globalValiables from '../mixins/globalValiables'
+
 
 export default {
   name: 'App',
-
+  mixins:[globalValiables],
   components: {
     Menu,
     Nav,

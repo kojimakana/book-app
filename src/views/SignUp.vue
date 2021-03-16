@@ -6,8 +6,8 @@
         <v-toolbar dark color="primary">
           <v-toolbar-title>ユーザー登録</v-toolbar-title>
         </v-toolbar>
-        <v-card-text>
-          <v-form ref="form" v-model="valid">
+        <v-form ref="form" v-model="valid" type="submit">
+          <v-card-text>
             <v-text-field
               name="username"
               label="UserName"
@@ -36,17 +36,17 @@
                 :rules="passwordRules"
                 data-cy="joinPasswordField"
             ></v-text-field>
-          </v-form>
-        </v-card-text>
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn
-              color="primary"
-              :disabled="!valid"
-              @click="submit"
-              data-cy="joinSubmitBtn"
-              >登録</v-btn>
-        </v-card-actions>
+          </v-card-text>
+          <v-card-actions>
+            <v-spacer></v-spacer>
+            <v-btn
+                color="primary"
+                :disabled="!valid"
+                @click="submit"
+                data-cy="joinSubmitBtn"
+                >登録</v-btn>
+          </v-card-actions>
+        </v-form>
         </v-card>
       </v-flex>
     </v-layout>
@@ -64,7 +64,7 @@ export default {
     password: '',
     emailRules: [
       v => !!v || 'E-mail is required',
-      v => /.+@ +/.test(v) || 'E-mail must be valid'
+      v => /.+@.+/.test(v) || "E-mail must be valid"
     ],
     passwordRules: [
       v => !!v || 'Password is required',

@@ -63,7 +63,6 @@
 
 <script>
 import firebase from "firebase";
-import { db } from '@/main.js'
 import moment from 'moment'
 import EditDialog from "@/components/EditDialog"
 
@@ -100,13 +99,13 @@ export default {
     },
     updatePost(postValue) {
       const uid = firebase.auth().currentUser.uid;
-      db.collection('users').doc(uid).collection('post').where('bid', '==', this.postItem.bid).get()
+      this.db.collection('users').doc(uid).collection('post').where('bid', '==', this.postItem.bid).get()
       .then(doc => {
           doc.forEach(ele => {
             let element = ele.data()
             let id = ele.id
             if(element.bid === this.postItem.bid) {
-              db.collection('users').doc(uid).collection('post').doc(id).update({
+              this.db.collection('users').doc(uid).collection('post').doc(id).update({
                 date: postValue.date,
                 comment: postValue.comment
               })
@@ -123,12 +122,12 @@ export default {
     },
     deletePost(postbook) {
       const uid = firebase.auth().currentUser.uid;
-      db.collection('users').doc(uid).collection('post').where('bid', '==', postbook.bid).get().then(snap => {
+      this.db.collection('users').doc(uid).collection('post').where('bid', '==', postbook.bid).get().then(snap => {
         snap.forEach(ele => {
           let delete_post = ele.data()
           let id = ele.id
           if(delete_post.bid === postbook.bid) {
-            db.collection('users').doc(uid).collection('post').doc(id).delete()
+            this.db.collection('users').doc(uid).collection('post').doc(id).delete()
             .then(() => { 
               console.log('削除');
             })
