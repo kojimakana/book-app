@@ -5,7 +5,7 @@
         <div class="content">
           <h1  class="teal--text darken-4 display-3 font-weight-bold">読書メモ</h1>
           <div>あなたの読書を記録するアプリ</div>
-          <div v-if="!isSignIn" class="mt-2">
+          <div v-if="!isAuthenticated" class="mt-2">
             <v-btn class="mr-2" color="primary lighten-1" to="/signin" data-cy="signinBtn">ログイン</v-btn>
             or
             <v-btn to="/signup" class="nav-join ml-2" data-cy="joinBtn">ユーザー登録
@@ -16,7 +16,7 @@
           </div>
         </div>
       </v-flex>
-      <v-flex xs12 md5 v-if="!isSignIn">
+      <v-flex xs12 md5 v-if="!isAuthenticated">
         <v-expansion-panels flat tile class="app-description">
           <v-expansion-panel
           >
@@ -55,8 +55,8 @@ export default {
     }
   },
   computed: {
-    isSignIn() {
-      return this.$store.getters.isSignIn
+    isAuthenticated() {
+      return this.$store.getters.isAuthenticated
     }
   },
   // methods: {

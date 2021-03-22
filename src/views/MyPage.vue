@@ -3,7 +3,7 @@
     <v-layout column>
       <h1 class="my-2">ユーザー情報</h1>
       <div class="my-3">
-        <p class="display-1">{{ getStateUser.user.displayName }}</p>
+        <p class="display-1">{{ user.user.displayName }}</p>
         <v-btn color="error" outlined @click="deleteUser">アカウント削除</v-btn>
       </div>
     </v-layout>
@@ -15,12 +15,11 @@ export default {
   name: "MyPage",
   data() {
     return {
-      user: this.$store.getters.getUser
     }
   },
   computed: {
-    getStateUser() {
-      return this.$store.getters.getUser
+    user() {
+      return this.$store.state.user
     }
   },
   methods: {

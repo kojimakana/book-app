@@ -47,14 +47,14 @@
         @before-close="closeModal"
         v-model="dialog"
       >
-        <EditDialog
+        <EditMemo
           :postTitle="postItem.volumeInfo.title"
           :postDate="postItem.date"
           :postComment="postItem.comment"
           @updatePost="updatePost"
           @closeModal="closeModal"
         >
-        </EditDialog>
+        </EditMemo>
       </v-dialog>
     </v-layout>
   </v-container>
@@ -64,7 +64,8 @@
 <script>
 import firebase from "firebase";
 import moment from 'moment'
-import EditDialog from "@/components/EditDialog"
+import { db } from '@/main.js'
+import EditMemo from "@/components/EditMemo"
 
 export default {
   name: 'ReadBooks',
@@ -75,7 +76,7 @@ export default {
     }
   },
   components: {
-    EditDialog
+    EditMemo
   },
   created() {
     const user = firebase.auth().currentUser
@@ -99,13 +100,13 @@ export default {
     },
     updatePost(postValue) {
       const uid = firebase.auth().currentUser.uid;
-      this.db.collection('users').doc(uid).collection('post').where('bid', '==', this.postItem.bid).get()
+      db.collection('users').doc(uid).collection('post').where('bid', '==', this.postItem.bid).get()
       .then(doc => {
           doc.forEach(ele => {
             let element = ele.data()
             let id = ele.id
             if(element.bid === this.postItem.bid) {
-              this.db.collection('users').doc(uid).collection('post').doc(id).update({
+              db.collection('users').doc(uid).collection('post').doc(id).update({
                 date: postValue.date,
                 comment: postValue.comment
               })
@@ -122,12 +123,12 @@ export default {
     },
     deletePost(postbook) {
       const uid = firebase.auth().currentUser.uid;
-      this.db.collection('users').doc(uid).collection('post').where('bid', '==', postbook.bid).get().then(snap => {
+      db.collection('users').doc(uid).collection('post').where('bid', '==', postbook.bid).get().then(snap => {
         snap.forEach(ele => {
           let delete_post = ele.data()
           let id = ele.id
           if(delete_post.bid === postbook.bid) {
-            this.db.collection('users').doc(uid).collection('post').doc(id).delete()
+            db.collection('users').doc(uid).collection('post').doc(id).delete()
             .then(() => { 
               console.log('削除');
             })

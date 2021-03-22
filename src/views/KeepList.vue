@@ -72,12 +72,12 @@
           @before-close="closeModal"
           v-model="dialog"
         >
-          <CommitDialog
+          <CommitMemo
             :bookTitle="keepItem.title"
             @closeModal="closeModal"
             @postBook="postBook"
             >
-          </CommitDialog>
+          </CommitMemo>
         </v-dialog>
       </v-layout>
     </v-container>
@@ -86,7 +86,8 @@
 
 <script>
 import firebase from "firebase";
-import CommitDialog from "@/components/CommitDialog"
+import { db } from '@/main.js'
+import CommitMemo from "@/components/CommitMemo"
 
 export default {
   name: 'KeepList',
@@ -97,7 +98,7 @@ export default {
     }
   },
   components: {
-    CommitDialog
+    CommitMemo
   },
   created() {
     const user = firebase.auth().currentUser
@@ -107,9 +108,6 @@ export default {
     }
   },
   computed: {
-    isSignIn() {
-      return this.$store.getters.isSignIn
-    },
     getKeepBooks() {
       return this.$store.state.keepBooks
     },
@@ -129,7 +127,7 @@ export default {
     },
     postBook(emitValue) {
       const uid = firebase.auth().currentUser.uid;
-      this.$forceUpdatedb.collection('users').doc(uid).collection('post').add({
+      db.collection('users').doc(uid).collection('post').add({
         bid: this.keepItem.bid,
         title: this.keepItem.title,
         date: emitValue.date,
@@ -137,12 +135,12 @@ export default {
         volumeInfo: this.keepItem.volumeInfo
       })
       .then(() => {
-        this.db.collection('users').doc(uid).collection('keep').where('bid', '==', this.keepItem.bid).get().then(snap => {
+        db.collection('users').doc(uid).collection('keep').where('bid', '==', this.keepItem.bid).get().then(snap => {
         snap.forEach(ele => {
           let delete_book = ele.data()
           let delete_bid = ele.id
           if(delete_book.bid === this.keepItem.bid) {
-            this.db.collection('users').doc(uid).collection('keep').doc(delete_bid).delete()
+            db.collection('users').doc(uid).collection('keep').doc(delete_bid).delete()
             }
           })
         })
@@ -162,12 +160,12 @@ export default {
 
     deleteKeep(keepbook) {
       const uid = firebase.auth().currentUser.uid;
-      this.db.collection('users').doc(uid).collection('keep').where('bid', '==', keepbook.bid).get().then(snap => {
+      db.collection('users').doc(uid).collection('keep').where('bid', '==', keepbook.bid).get().then(snap => {
         snap.forEach(ele => {
           let delete_book = ele.data()
           let delete_id = ele.id
           if(delete_book.bid === keepbook.bid) {
-            this.db.collection('users').doc(uid).collection('keep').doc(delete_id).delete()
+            db.collection('users').doc(uid).collection('keep').doc(delete_id).delete()
             .then(() => { 
               console.log('削除');
             })

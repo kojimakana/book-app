@@ -48,7 +48,7 @@ export default {
       postItem: '',
     }
   },
-  created() {
+  beforeCreate() {
     const user = firebase.auth().currentUser
     if(user) {
       this.$store.dispatch('getRecentBooks');
