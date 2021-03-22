@@ -1,18 +1,25 @@
 <template>
   <v-app-bar app>
-    <v-app-bar-nav-icon v-show="$store.state.user" @click.stop="toggleMenu"></v-app-bar-nav-icon>
+    <v-app-bar-nav-icon v-show="$store.state.user" @click.stop="toggleMenu" class="hidden-md-and-up"></v-app-bar-nav-icon>
     <router-link to="/">
       <v-toolbar-title to="/" class="teal--text darken-4 font-weight-bold">
         読書メモ
       </v-toolbar-title>
     </router-link>
     <v-spacer></v-spacer>
-      <!-- <div>
-        <router-link to="/search">探す</router-link>
-        <router-link to="/keeplist"><v-icon>mdi-bookmark</v-icon></router-link>
-      </div> -->
-      <v-btn text v-if="$store.state.user" @click="logout" data-cy="logout" right>ログアウト</v-btn>
-      <v-btn to="/mypage" text icon v-if="$store.state.user"><v-icon>mdi-account</v-icon></v-btn>
+      <div v-if="$store.state.user">
+        <v-btn v-for="(item, index) in items" :key="index" :to="item.link" text color="brown darken-3" class="font-weight-bold hidden-sm-and-down">{{ item.title }}</v-btn>
+      </div>
+      <v-menu v-if="$store.state.user">
+        <template v-slot:activator="{ on, attrs }" >
+          <v-btn text icon  v-bind="attrs" v-on="on" ><v-icon>mdi-account</v-icon></v-btn>
+        </template>
+        <v-list>
+          <v-list-item><v-btn @click="logout" text>ログアウト</v-btn></v-list-item>
+          <v-list-item><v-btn to="mypage" text>アカウント削除</v-btn>
+            </v-list-item>
+        </v-list>
+      </v-menu>
   </v-app-bar>
 </template>
 
@@ -23,6 +30,12 @@ export default {
   name: 'Nav',
   data () {
     return {
+      items: [
+        { title: 'ホーム', link: { name: 'userhome' } },
+        { title: '探す', link: { name: 'search' } },
+        { title: '保存済み',  link: { name: 'keeplist' } },
+        { title: '読んだ本', link: { name: 'readbooks' } },
+      ]
     }
   },
   methods: {
@@ -31,6 +44,11 @@ export default {
       this.$store.dispatch("userSignOut")
     }
   },
+  computed: {
+    isAuthenticated() {
+      return this.$store.getters.isAuthenticated
+    }
+  }
 }
 </script>
 
