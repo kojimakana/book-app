@@ -6,8 +6,8 @@ import createPersistedState from 'vuex-persistedstate'
 import axios from 'axios'
 import { db } from '@/main.js'
 
-Vue.use(Vuex)
 
+Vue.use(Vuex)
 
 export default new Vuex.Store({
   state: {
@@ -21,8 +21,8 @@ export default new Vuex.Store({
     recentBooks: []
   },
   mutations: {
-    setUser (state, payload) {
-      state.user = payload
+    setUser (state, user) {
+      state.user = user
     },
     setSignIn(state, payload) {
       state.isSignIn = payload
@@ -44,14 +44,17 @@ export default new Vuex.Store({
     },
     setAdd(state, book) {
       const uid = firebase.auth().currentUser.uid;
-        db.collection('users').doc(uid).collection('keep').add({
-          bid: book.id,
-          title: book.volumeInfo.title,
-          volumeInfo: book.volumeInfo
-      })
+      const addBook = {
+        bid: book.id,
+        title: book.volumeInfo.title,
+        volumeInfo: book.volumeInfo
+      }
+        db.collection('users').doc(uid).collection('keep').add(
+        addBook
+      )
       .then(() => {
-          book.keep_status = true;
-          console.log('お気に入り登録')
+        state.keepBooks.push(addBook)
+        console.log('お気に入り登録')
       })
       .catch(err => {
         console.log(err);
@@ -65,8 +68,8 @@ export default new Vuex.Store({
           let delete_bid = ele.id
           if(delete_book.bid === book.id) {
             db.collection('users').doc(uid).collection('keep').doc(delete_bid).delete()
-            .then(() => { 
-              book.keep_status = false;
+            .then(() => {
+              console.log(state.keepBooks);
               console.log('お気に入り削除');
             })
             .catch(err => {
@@ -86,7 +89,6 @@ export default new Vuex.Store({
           if(delete_book.bid === keepbook.bid) {
             db.collection('users').doc(uid).collection('keep').doc(delete_bid).delete()
             .then(() => { 
-              keepbook.keep_status = false;
               console.log('お気に入り削除');
             })
             .catch(err => {
@@ -101,11 +103,20 @@ export default new Vuex.Store({
     },
     setRecentBooks(state, payload) {
       state.recentBooks = payload
+    },
+    initialize(state) {
+      state.user = null,
+      state.isSignIn = false,
+      state.books = [],
+      state.query = '',
+      state.keepBooks = [],
+      state.postBooks = [],
+      state.recentBooks = []
     }
   },
   actions: {
     setLoginUser ({ commit }, user) {
-      commit('setLoginUser', user)
+      commit('setUser', user)
     },
     deleteLoginUser ({ commit }) {
       commit('deleteLoginUser')
@@ -114,13 +125,14 @@ export default new Vuex.Store({
       firebase
       .auth().signInWithEmailAndPassword(email, password)
       .then(user => {
+        commit('initialize')
         commit('setUser', user)
-        commit('isSignIn', true)
+        commit('setSignIn', true)
         router.push('/userhome')
       })
       .catch(() => {
         commit('setUser', null)
-        commit('isSignIn', false)
+        commit('setSignIn', false)
         alert('入力内容を再度確認してください。')
       })
     },
@@ -130,12 +142,13 @@ export default new Vuex.Store({
       .signOut()
       .then(() => {
         commit('setUser', null)
-        commit('isSignIn', false)
+        commit('setSignIn', false)
         router.push('/')
       })
-      .catch(() => {
+      .catch(err => {
+        console.log(err)
         commit('setUser', null)
-        commit('isSignIn', false)
+        commit('setSignIn', false)
         router.push('/')
       })
     },
@@ -150,8 +163,9 @@ export default new Vuex.Store({
         user.user.updateProfile({
           displayName: userName
         })
+        commit('initialize')
         commit('setUser', user)
-        commit('isSignIn', true)
+        commit('setSignIn', true)
         router.push('/userhome')
 
         const uid = user.user.uid;
@@ -161,11 +175,12 @@ export default new Vuex.Store({
           email: email,
           password: password
         })
+
       })
       .catch(err => {
         console.log(err);
         commit('setUser', null)
-        commit('isSignIn', false)
+        commit('setSignIn', false)
         alert('入力内容を再度確認してください。')
       })
     },
@@ -177,6 +192,7 @@ export default new Vuex.Store({
         commit('setUser', null)
         commit('isSignIn', false)
         router.push('/')
+        commit('clearData')
       })
       .catch(() => {
         commit('setUser', null)
@@ -256,13 +272,7 @@ export default new Vuex.Store({
     }
   },
   getters: {
-    getUser(state) {
-      return state.user
-    },
-    userName(state) {
-      return state.userName
-    },
-    isSignIn(state) {
+    isAuthenticated(state) {
       return state.user !== null && state.user !== undefined
     },
   },
