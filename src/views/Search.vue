@@ -1,7 +1,7 @@
 <template>
   <div id="bg">
     <v-container grid-list-md>
-      <v-form @submit.prevent="search">
+      <div class="d-flex flex-row align-baseline">
         <v-text-field
           placeholder="キーワードを入力"
           v-model="query"
@@ -10,10 +10,11 @@
           dense
           clear-icon="mdi-close-circle"
           clearable
-          append-outer-icon="mdi-magnify"
-        ></v-text-field>
-      </v-form>
-    <v-layout v-if="books" wrap>
+        >
+        </v-text-field>
+        <v-btn @click="search" color="teal" class="ml-2" small outlined>検索<v-icon>mdi-magnify</v-icon></v-btn>
+      </div>
+    <v-layout wrap>
       <v-flex v-for="(book, index) in displayBooks"
         :key="index"
         xs12 sm6>
@@ -56,13 +57,13 @@
                     <v-icon>mdi-pencil-plus</v-icon>
                 </v-btn>
                 <v-spacer></v-spacer>
-                <v-btn text v-if="!book.keep_status" @click.prevent="addKeep(book)"
+                <v-btn text v-if="checkKeeped(book.id)" @click.prevent="removeKeep(book)">
+                  <v-icon>mdi-bookmark</v-icon>
+                </v-btn>
+                <v-btn text v-else @click.prevent="addKeep(book)"
                 right
                 >
                   <v-icon>mdi-bookmark-outline</v-icon>
-                </v-btn>
-                <v-btn text v-else @click.prevent="removeKeep(book)" >
-                  <v-icon>mdi-bookmark</v-icon>
                 </v-btn>
               </v-card-actions>
                 <v-expansion-panels v-if="book.volumeInfo.description">
@@ -84,11 +85,11 @@
           @before-close="closeModal"
           v-model="dialog"
         >
-        <CommitDialog 
+        <CommitMemo 
           :bookTitle="item.volumeInfo.title"
           @postBook="postBook"
           @closeModal="closeModal">
-          </CommitDialog>
+          </CommitMemo>
       </v-dialog>
       <div class="text-center mx-auto my-5">
         <v-pagination
@@ -105,7 +106,8 @@
 <script>
 import _ from "lodash"
 import firebase from 'firebase'
-import CommitDialog from "@/components/CommitDialog"
+import { db } from '@/main.js'
+import CommitMemo from "@/components/CommitMemo"
 
 export default {
   name: 'Search',
@@ -120,7 +122,7 @@ export default {
     }
   },
   components: {
-    CommitDialog
+    CommitMemo
   },
   computed: {
     books() {
@@ -135,26 +137,20 @@ export default {
         this.$store.dispatch('doUpdate', value)
       }
     },
-    isSignIn() {
-      return this.$store.getters.isSignIn
-    },
   },
   mounted() {
-    this.length = Math.ceil(this.books.length/this.pageSize);
-    this.displayBooks = this.books.slice(this.pageSize*(this.page -1), this.pageSize*(this.page));
+    this.createPagination();
   },
   watch: {
     query: function() {
       this.debouncedGetAnswer();
     },
     books: function() {
-      this.checkKeeped();
       this.checkPosted();
-    }
+    },
   },
   created() {
     this.debouncedGetAnswer = _.debounce(this.search, 1000);
-    this.checkKeeped();
     this.checkPosted();
   },
   methods: {
@@ -166,7 +162,9 @@ export default {
       this.dialog = false
     },
     search() {
-      this.$store.dispatch("searchBook")
+      this.$store.dispatch("searchBook");
+      this.createPagination();
+      this.page = 1
     },
     pageChange(pageNumber) {
       this.displayBooks = this.books.slice(this.pageSize*(pageNumber -1), this.pageSize*(pageNumber));
@@ -181,7 +179,7 @@ export default {
     postBook(emitValue) {
       console.log(this.item);
       const uid = firebase.auth().currentUser.uid;
-      this.db.collection('users').doc(uid).collection('post').add({
+      db.collection('users').doc(uid).collection('post').add({
         bid: this.item.id,
         title: this.item.volumeInfo.title,
         date: emitValue.date,
@@ -197,24 +195,9 @@ export default {
         console.log(err);
       })
     },
-    checkKeeped() {
-      const user = firebase.auth().currentUser
-      if(user) {
-        let array = this.$store.state.keepBooks
-        this.$store.state.books.forEach(book => {
-          function checkAlreadyKeep(arr, id) {
-            return arr.some(function(value) {
-              return id === value.bid
-            })
-          }
-          if(checkAlreadyKeep(array, book.id)) {
-            book.keep_status = true
-            console.log('checkKeeped', book.keep_status)
-          } else {
-            book.keep_status = false
-          }
-        })
-      }
+    checkKeeped(bookId) {
+      let keeps = this.$store.state.keepBooks.map(keepbook => keepbook.bid)
+      return keeps.includes(bookId);
     },
     checkPosted() {
       const user = firebase.auth().currentUser
@@ -234,6 +217,10 @@ export default {
           }
         })
       }
+    },
+    createPagination() {
+      this.displayBooks = this.books.slice(this.pageSize*(this.page -1), this.pageSize*(this.page));
+      this.length = Math.ceil(this.books.length/this.pageSize);
     }
   },
 }
