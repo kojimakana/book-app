@@ -10,9 +10,6 @@
             or
             <v-btn to="/signup" class="nav-join ml-2" data-cy="joinBtn">ユーザー登録
             </v-btn>
-            <!-- <div>
-              <v-btn text class="my-3" color="primary" @click="signInAnonymously">登録せずに機能だけ試す</v-btn>
-            </div> -->
           </div>
         </div>
       </v-flex>
@@ -59,11 +56,6 @@ export default {
       return this.$store.getters.isAuthenticated
     }
   },
-  // methods: {
-  //   signInAnonymously() {
-  //     this.$store.dispatch('anonymityUserLogin')
-  //   }
-  // }
 }
 </script>
 
