@@ -7,7 +7,7 @@
           <v-toolbar-title>ユーザー登録</v-toolbar-title>
         </v-toolbar>
         <v-card-text>
-          <v-form ref="form" v-model="valid" type="submit">
+          <v-form ref="form" v-model="valid" lazy-validation>
             <v-text-field
               name="username"
               label="UserName"

@@ -7,7 +7,7 @@
             <v-toolbar-title>ログイン</v-toolbar-title>
           </v-toolbar>
           <v-card-text>
-            <v-form ref="form" v-model="valid" type="submit">
+            <v-form ref="form" v-model="valid" lazy-validation>
               <v-text-field
                 name="email"
                 label="Email"
@@ -35,7 +35,8 @@
               :disabled="!valid"
               @click="submit"
               data-cy="signinSubmitBtn"
-            >ログイン</v-btn>
+            >ログイン
+            </v-btn>
           </v-card-actions>
         </v-card>
       </v-flex>
