@@ -1,7 +1,7 @@
 # 読書メモ
 読書習慣をつけたい人、読書を振り返りたい人のための  シンプルな『読書記録アプリ』です。<br>
 探す→保存→記録の3ステップで、自分だけの読書記録を残せます。<br>
-(レスポンシブ対応可)<br>
+(レスポンシブ対応済み)<br>
 ![トップ](src/assets/img/reading-memo.png)
 
 # 作成した目的
@@ -10,11 +10,28 @@
 
 # 使い方
 ## ホーム画面
+ユーザーのホーム画面です。  
+カレンダーで記録した本の確認、最近の記録が表示されます。  
+![ホーム](src/assets/img/userhome.png)
+
 ## 検索画面
+キーワードを入力し、本を検索できます。  
+検索結果から、保存または直接記録することができます。  
+![検索](src/assets/img/search.png)
+
 ## 保存済み画面
+検索画面で保存した本の一覧が表示されます。  
+気になる本を登録しましょう。  
+![保存済み](src/assets/img/keeplist.png)
+
 ## 読んだ本一覧画面
+読んだ本の一覧が表示されます。  
+記録を削除・更新できます。  
+![読んだ本](src/assets/img/readbooks.png)
+
 
 # URL
+https://reading-memo.xyz
 
 # 使用技術
 Vue 2.6.11  
@@ -23,6 +40,7 @@ Vue Router 3.2.0
 Vuetify 2.2.11  
 Firebase 8.2.3  
 HTML/CSS  
+JavaScript  
 Sass  
 Google Books API  
 
@@ -33,3 +51,5 @@ Google Books API
 - 読書メモのCRUD機能
   - カレンダーとの連携機能
   - 最近の投稿機能
+  - お気に入り登録・削除
+  - 読書メモの投稿・編集・削除
