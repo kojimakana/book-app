@@ -6,8 +6,8 @@
         <v-toolbar dark color="primary">
           <v-toolbar-title>ユーザー登録</v-toolbar-title>
         </v-toolbar>
-        <v-form ref="form" v-model="valid" type="submit">
-          <v-card-text>
+        <v-card-text>
+          <v-form ref="form" v-model="valid" type="submit">
             <v-text-field
               name="username"
               label="UserName"
@@ -36,7 +36,8 @@
                 :rules="passwordRules"
                 data-cy="joinPasswordField"
             ></v-text-field>
-          </v-card-text>
+          </v-form>
+        </v-card-text>
           <v-card-actions>
             <v-spacer></v-spacer>
             <v-btn
@@ -46,7 +47,6 @@
                 data-cy="joinSubmitBtn"
                 >登録</v-btn>
           </v-card-actions>
-        </v-form>
         </v-card>
       </v-flex>
     </v-layout>
