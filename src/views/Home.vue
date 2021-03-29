@@ -11,6 +11,9 @@
             <v-btn to="/signup" class="nav-join ml-2" data-cy="joinBtn">ユーザー登録
             </v-btn>
           </div>
+          <div>
+            <v-btn v-if="!isAuthenticated" @click="testLogin" class="test_login mt-3" color="primary" text>ログインせずに試す</v-btn>
+          </div>
         </div>
       </v-flex>
       <v-flex xs12 md5 v-if="!isAuthenticated">
@@ -56,6 +59,14 @@ export default {
       return this.$store.getters.isAuthenticated
     }
   },
+  methods: {
+    testLogin() {
+      this.$store.dispatch("userLogin", {
+        email: 'testuser@test.com',
+        password: 'testuser'
+      })
+    }
+  }
 }
 </script>
 
@@ -84,5 +95,9 @@ export default {
 
   .v-expansion-panel-content {
     font-size: 85%;
+  }
+
+  .test_login {
+    font-size: 80%;
   }
 </style>
