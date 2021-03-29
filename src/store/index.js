@@ -273,7 +273,8 @@ export default new Vuex.Store({
   },
   getters: {
     isAuthenticated(state) {
-      return state.user !== null && state.user !== undefined
+      const test_uid = "xENTjwmvihclXFUcdySO1TxAkWl1"
+      return state.user !== null && state.user !== undefined && state.user.user.uid !== test_uid
     },
   },
   plugins: [createPersistedState({
